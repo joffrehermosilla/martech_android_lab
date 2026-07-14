@@ -48,9 +48,22 @@ class MainActivity : AppCompatActivity() {
         setupButtonClickListeners()
         askNotificationPermission()
 
+        // Procesar el intent inicial si la app se abrió desde una notificación
+        handleIntent(intent)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        // Procesar el intent cuando la app ya está abierta y llega uno nuevo (ej. clic en notificación)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
         intent?.extras?.let {
             if (it.containsKey("messageId")) {
-                Log.d("MainActivity", "App opened from a push notification.")
+                Log.d("MainActivity", "App opened/interacted from a push notification.")
+                // Enviar tracking de interacción a Adobe Messaging
                 Messaging.handleNotificationResponse(intent, true, null)
             }
         }
