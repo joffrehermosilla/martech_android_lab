@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_home"
+        android:title="Inicio"
+        android:icon="@drawable/ic_home"/>
+
+    <item
+        android:id="@+id/menu_places"
+        android:title="Places"
+        android:icon="@drawable/ic_places"/>
+
+    <item
+        android:id="@+id/menu_push"
+        android:title="Push"
+        android:icon="@drawable/ic_push"/>
+
+    <item
+        android:id="@+id/menu_identity"
+        android:title="Identity"
+        android:icon="@drawable/ic_identity"/>
+
+    <item
+        android:id="@+id/menu_logs"
+        android:title="Logs"
+        android:icon="@drawable/ic_logs"/>
+
+</menu>

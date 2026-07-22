@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- ========================= -->
+    <!-- INTERNET -->
+    <!-- ========================= -->
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!-- ========================= -->
+    <!-- PUSH -->
+    <!-- ========================= -->
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+    <!-- ========================= -->
+    <!-- PLACES -->
+    <!-- ========================= -->
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <!-- Android 10+ -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
 
     <application
         android:name=".MessagingApplication"
@@ -11,22 +31,44 @@
         android:label="AJO Template App"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+
+        <!-- Adobe Places Extension -->
+        <service
+            android:name="com.adobe.marketing.mobile.ExtensionDiscoveryService"
+            android:exported="false">
+
+            <meta-data
+                android:name="com.adobe.marketing.mobile.places.PlacesExtension"
+                android:value="Extension"/>
+
+        </service>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
+
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+
             </intent-filter>
+
         </activity>
 
         <service
             android:name=".MyFirebaseMessagingService"
             android:exported="true">
+
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+
             </intent-filter>
+
         </service>
+
     </application>
 
 </manifest>

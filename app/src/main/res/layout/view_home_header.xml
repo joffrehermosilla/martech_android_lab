@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="wrap_content"
+
+    android:layout_margin="16dp"
+
+    app:cardCornerRadius="26dp"
+
+    app:cardElevation="8dp">
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical"
+
+        android:padding="24dp"
+
+        android:background="@drawable/bg_header">
+
+        <TextView
+
+            android:text="Adobe Experience Platform"
+
+            android:textColor="@android:color/white"
+
+            android:textSize="24sp"
+
+            android:textStyle="bold"/>
+
+        <TextView
+
+            android:layout_marginTop="6dp"
+
+            android:text="Mobile Lab"
+
+            android:textColor="#D8E7FF"
+
+            android:textSize="16sp"/>
+
+        <LinearLayout
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="18dp"
+
+            android:background="#33FFFFFF"
+
+            android:paddingLeft="14dp"
+
+            android:paddingTop="6dp"
+
+            android:paddingRight="14dp"
+
+            android:paddingBottom="6dp"
+
+            android:gravity="center_vertical">
+
+            <View
+
+                android:layout_width="10dp"
+
+                android:layout_height="10dp"
+
+                android:background="@drawable/bg_status"/>
+
+            <TextView
+
+                android:layout_marginStart="8dp"
+
+                android:text="Connected"
+
+                android:textColor="@android:color/white"
+
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
+        <TextView
+
+            android:layout_marginTop="24dp"
+
+            android:text="Customer ID"
+
+            android:textColor="#DCE7FF"/>
+
+        <TextView
+
+            android:id="@+id/txtCustomerId"
+
+            android:text="No autenticado"
+
+            android:textColor="@android:color/white"
+
+            android:textSize="16sp"
+
+            android:textStyle="bold"/>
+
+        <TextView
+
+            android:layout_marginTop="18dp"
+
+            android:text="ECID"
+
+            android:textColor="#DCE7FF"/>
+
+        <TextView
+
+            android:id="@+id/txtECID"
+
+            android:text="Obteniendo..."
+
+            android:textColor="@android:color/white"
+
+            android:textSize="16sp"/>
+
+        <TextView
+
+            android:layout_marginTop="18dp"
+
+            android:text="Edge ID"
+
+            android:textColor="#DCE7FF"/>
+
+        <TextView
+
+            android:id="@+id/txtEdge"
+
+            android:text="Obteniendo..."
+
+            android:textColor="@android:color/white"
+
+            android:textSize="16sp"/>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

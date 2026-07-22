@@ -10,8 +10,9 @@ buildscript {
     dependencies {
         // Aquí definimos la versión del Android Gradle Plugin (AGP).
         // Mantener esto actualizado es clave.
-        classpath("com.android.tools.build:gradle:9.1.1")
-
+      //  classpath("com.android.tools.build:gradle:9.1.1")
+      // esta version es la que debe funcionar en prod gradle:8.12.3
+        classpath("com.android.tools.build:gradle:8.12.3")
         // El plugin de Kotlin para Android.
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.10")
 

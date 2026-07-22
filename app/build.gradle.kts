@@ -55,14 +55,26 @@ android {
 }
 
 dependencies {
-    implementation("com.adobe.marketing.mobile:core:3.5.0")
-    implementation("com.adobe.marketing.mobile:edge:3.0.1")
-    implementation("com.adobe.marketing.mobile:edgeidentity:3.0.0")
-    implementation("com.adobe.marketing.mobile:lifecycle:3.0.1")
-    implementation("com.adobe.marketing.mobile:messaging:3.6.0")
-    implementation("com.adobe.marketing.mobile:assurance:3.0.1")
+
+    implementation(platform("com.adobe.marketing.mobile:sdk-bom:3.+"))
+
+    implementation("com.adobe.marketing.mobile:core")
+    implementation("com.adobe.marketing.mobile:edge")
+    implementation("com.adobe.marketing.mobile:edgeidentity")
+    implementation("com.adobe.marketing.mobile:lifecycle")
+    implementation("com.adobe.marketing.mobile:messaging")
+    implementation("com.adobe.marketing.mobile:assurance")
+    implementation("com.adobe.marketing.mobile:places")
+    implementation("com.adobe.marketing.mobile:audience")
+
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+
     implementation("com.google.firebase:firebase-messaging:23.4.1")
+
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
+   // implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("com.google.android.gms:play-services-location:21.4.0")
+
 }
