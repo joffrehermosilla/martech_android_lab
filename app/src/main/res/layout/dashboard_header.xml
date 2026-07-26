@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="wrap_content"
+
+    android:orientation="vertical"
+
+    android:padding="24dp"
+
+    android:background="#1473E6">
+
+    <TextView
+        android:text="Adobe Journey Optimizer"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:text="Mobile Demo"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:layout_marginTop="6dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="20dp"
+
+        android:orientation="horizontal">
+
+        <LinearLayout
+
+            android:layout_width="0dp"
+
+            android:layout_weight="1"
+
+            android:layout_height="wrap_content"
+
+            android:orientation="vertical">
+
+            <TextView
+
+                android:text="SDK"
+
+                android:textColor="#FFFFFF"
+
+                android:textSize="12sp"
+
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"/>
+
+            <TextView
+
+                android:id="@+id/txtSdkStatus"
+
+                android:text="Connected"
+
+                android:textStyle="bold"
+
+                android:textColor="#FFFFFF"
+
+                android:textSize="18sp"
+
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+
+            android:layout_width="0dp"
+
+            android:layout_weight="1"
+
+            android:layout_height="wrap_content"
+
+            android:orientation="vertical">
+
+            <TextView
+
+                android:text="Sandbox"
+
+                android:textColor="#FFFFFF"
+
+                android:textSize="12sp"
+
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"/>
+
+            <TextView
+
+                android:id="@+id/txtSandbox"
+
+                android:text="DEV"
+
+                android:textStyle="bold"
+
+                android:textColor="#FFFFFF"
+
+                android:textSize="18sp"
+
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F5F8">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="72dp"
+
+            android:layout_height="72dp"
+            android:text="Identity Console"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="#222"/>
+
+        <TextView
+            android:layout_width="72dp"
+
+            android:layout_height="72dp"
+            android:text="Adobe Experience Platform"
+            android:textColor="#777"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
+        <include layout="@layout/card_identity"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
+        <include layout="@layout/card_customerid"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
+        <include layout="@layout/card_push"/>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="20dp"/>
+
+        <include layout="@layout/card_sdk"/>
+
+    </LinearLayout>
+
+</ScrollView>

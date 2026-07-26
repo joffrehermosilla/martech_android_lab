@@ -11,3 +11,4 @@ build/
 .externalNativeBuild
 .cxx
 .DS_Store
+/code/referencias

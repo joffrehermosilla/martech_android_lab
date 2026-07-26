@@ -1,258 +1,269 @@
 package com.adobe.marketing.mobile.messagingsample
 
-import android.content.Intent
-import android.os.Bundle
-import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
-import com.adobe.marketing.mobile.MobileCore
-import com.adobe.marketing.mobile.Messaging
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Bundle
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.adobe.marketing.mobile.Event
-import org.json.JSONObject
-import java.util.HashMap
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.adobe.marketing.mobile.Messaging
+import com.adobe.marketing.mobile.MobileCore
+import com.adobe.marketing.mobile.messagingsample.adobe.AdobeIdentityManager
+import com.adobe.marketing.mobile.messagingsample.adobe.AdobeJourneyManager
+import com.adobe.marketing.mobile.messagingsample.adobe.AdobePushManager
+import com.adobe.marketing.mobile.messagingsample.ui.dashboard.DashboardManager
+import com.adobe.marketing.mobile.messagingsample.logger.AdobeLogger
+import com.adobe.marketing.mobile.messagingsample.ui.dashboard.DashboardBinder
 
-/**
- * La actividad principal de la aplicación.
- */
+import com.adobe.marketing.mobile.messagingsample.ui.identity.IdentityActivity
+import com.adobe.marketing.mobile.messagingsample.ui.logs.LogsActivity
+import com.adobe.marketing.mobile.messagingsample.ui.logs.TimelineAdapter
+import com.adobe.marketing.mobile.messagingsample.ui.places.PlacesActivity
+import com.google.firebase.messaging.FirebaseMessaging
+
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var triggerIamButton: Button
-    private lateinit var iamTriggerEventEditText: EditText
-    private lateinit var setPushIdButton: Button
-    private lateinit var resetIdentitiesButton: Button
-    private lateinit var customDemoButton: Button
+    private lateinit var cardIdentity: LinearLayout
+    private lateinit var cardPlaces: LinearLayout
+    private lateinit var cardPush: LinearLayout
+    private lateinit var cardInApp: LinearLayout
+    private lateinit var cardJourney: LinearLayout
+    private lateinit var cardLogs: LinearLayout
+
+    // CDP Connection Card
+    private lateinit var badgeCdpStatus: TextView
+    private lateinit var txtDashboardEcid: TextView
+    private lateinit var txtDashboardCustomerId: TextView
+    private lateinit var txtDashboardPushStatus: TextView
+
+    private lateinit var recyclerTimeline: RecyclerView
+    private val timelineAdapter = TimelineAdapter()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        triggerIamButton = findViewById(R.id.btnTriggerIam)
-        iamTriggerEventEditText = findViewById(R.id.editTextImageTrigger)
-        setPushIdButton = findViewById(R.id.btnSetPushIdentifier)
-        resetIdentitiesButton = findViewById(R.id.btnResetIdentities)
-        customDemoButton = findViewById(R.id.btnCustomDemo)
-
-        setupButtonClickListeners()
+        initializeViews()
+        initializeClicks()
+        bindDashboard()
+        loadCdpConnectionData()
+        setupTimeline()
         askNotificationPermission()
-
-        // Procesar el intent inicial si la app se abrió desde una notificación
         handleIntent(intent)
-    }
+        fetchFcmToken()
 
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        // Procesar el intent cuando la app ya está abierta y llega uno nuevo (ej. clic en notificación)
-        setIntent(intent)
-        handleIntent(intent)
-    }
-
-    private fun handleIntent(intent: Intent?) {
-        intent?.extras?.let {
-            if (it.containsKey("messageId")) {
-                Log.d("MainActivity", "App opened/interacted from a push notification.")
-                // Enviar tracking de interacción a Adobe Messaging
-                Messaging.handleNotificationResponse(intent, true, null)
-            }
-        }
-    }
-
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            Log.d("MainActivity", "Notification permission granted.")
-        } else {
-            Log.d("MainActivity", "Notification permission denied.")
-        }
-    }
-
-    private fun askNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-                PackageManager.PERMISSION_GRANTED
-            ) {
-                // Permission is already granted
-            } else {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        }
-    }
-
-    private fun setupButtonClickListeners() {
-        setPushIdButton.setOnClickListener {
-            Log.d("MainActivity", "Attempting to set push identifier...")
-            lifecycleScope.launch {
-                try {
-                    val token = Firebase.messaging.token.await()
-                    Log.d("MainActivity", "Obtained FCM Token: $token")
-                    MobileCore.setPushIdentifier(token)
-                    Toast.makeText(baseContext, "Push Identifier Set!", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    Log.e("MainActivity", "ERROR: Failed to get FCM token.", e)
-                    Toast.makeText(baseContext, "Error getting FCM token.", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-
-        triggerIamButton.setOnClickListener {
-            val eventName = iamTriggerEventEditText.text.toString()
-            if (eventName.isNotBlank()) {
-                Log.d("MainActivity", "Tracking action: '$eventName'")
-                MobileCore.trackAction(eventName, null)
-                Toast.makeText(this, "Event '$eventName' sent.", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Please enter an event name.", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        resetIdentitiesButton.setOnClickListener {
-            Log.d("MainActivity", "Resetting identities...")
-            MobileCore.resetIdentities()
-            Toast.makeText(this, "Identities Reset.", Toast.LENGTH_SHORT).show()
-        }
-
-        customDemoButton.setOnClickListener {
-            Log.d("MainActivity", "Triggering Custom AJO Demo Message...")
-            showCustomAjoDemoMessage()
-        }
-    }
-
-    private fun showCustomAjoDemoMessage() {
-        val htmlContent = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-                <style>
-                    body { 
-                        margin: 0; 
-                        padding: 0; 
-                        background-color: #FF6B00; 
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-                        display: flex; 
-                        justify-content: center; 
-                        align-items: center; 
-                        height: 100vh; 
-                        width: 100vw;
-                    }
-                    .card { 
-                        background-color: white; 
-                        border-radius: 20px; 
-                        width: 90%; 
-                        max-width: 350px; 
-                        padding: 24px; 
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-                        text-align: center; 
-                        position: relative;
-                        animation: slideUp 0.5s ease-out;
-                    }
-                    @keyframes slideUp {
-                        from { transform: translateY(50px); opacity: 0; }
-                        to { transform: translateY(0); opacity: 1; }
-                    }
-                    .close-btn { 
-                        position: absolute; 
-                        top: 15px; 
-                        right: 15px; 
-                        font-size: 24px; 
-                        color: #1473E6; 
-                        text-decoration: none; 
-                        font-weight: bold;
-                        width: 30px;
-                        height: 30px;
-                        line-height: 30px;
-                    }
-                    .runner-img { 
-                        width: 100%; 
-                        border-radius: 12px; 
-                        margin-bottom: 20px;
-                        display: block;
-                    }
-                    h2 { color: #333; font-size: 22px; margin-bottom: 10px; margin-top: 10px; }
-                    p { color: #666; font-size: 16px; margin-bottom: 25px; line-height: 1.5; }
-                    .cta-btn { 
-                        background-color: #1473E6; 
-                        color: white; 
-                        padding: 14px 0; 
-                        width: 100%;
-                        border-radius: 8px; 
-                        text-decoration: none; 
-                        display: block; 
-                        font-weight: bold; 
-                        font-size: 18px; 
-                        box-shadow: 0 4px 10px rgba(20, 115, 230, 0.3);
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="card">
-                    <a href="adbinapp://dismiss" class="close-btn">×</a>
-                    <img src="https://images.unsplash.com/photo-1530143311094-34d807799e8f?q=80&w=600&auto=format&fit=crop" class="runner-img" alt="Runner">
-                    <h2>Title text</h2>
-                    <p>Sabes que a partir de ahora recibiras mensajes desde AJO</p>
-                    <a href="adbinapp://dismiss" class="cta-btn">Button</a>
-                </div>
-            </body>
-            </html>
-        """.trimIndent()
-
-        // Escaping HTML for JSON string
-        val escapedHtml = htmlContent.replace("\"", "\\\"").replace("\n", "\\n")
-
-        val payloadString = """
-            {
-              "items": [{
-                "id": "demo-item-123",
-                "schema": "https://ns.adobe.com/personalization/json-content-item",
-                "data": {
-                  "content": "{\"version\":1,\"rules\":[{\"condition\":{\"type\":\"group\",\"definition\":{\"conditions\":[{\"definition\":{\"key\":\"demo\",\"matcher\":\"eq\",\"values\":[\"true\"]},\"type\":\"matcher\"}],\"logic\":\"and\"}},\"consequences\":[{\"id\":\"demo-consequence-456\",\"type\":\"cjmiam\",\"detail\":{\"html\":\"$escapedHtml\",\"mobileParameters\":{\"schemaVersion\":\"1.0\",\"width\":100,\"height\":100,\"verticalAlign\":\"center\",\"horizontalAlign\":\"center\",\"uiTakeover\":true,\"displayAnimation\":\"bottom\",\"dismissAnimation\":\"bottom\",\"backdropColor\":\"#000000\",\"backdropOpacity\":0.5}}]}]}"
-                }
-              }]
-            }
-        """.trimIndent()
-
-        Log.d("AJO_JSON_DEBUG", "Sending Mock AJO Payload: $payloadString")
-
-        try {
-            val payloadJson = JSONObject(payloadString)
-            val eventData = HashMap<String, Any?>()
-            eventData["payload"] = PayloadFormatUtils.toObjectMap(payloadJson)
-            eventData["type"] = "personalization:decisions"
-
-            val event = Event.Builder(
-                "Custom Demo AJO Message",
-                "com.adobe.eventType.edge",
-                "personalization:decisions"
-            ).setEventData(eventData).build()
-
-            MobileCore.dispatchEvent(event)
-            Toast.makeText(this, "Demo event dispatched! Check Logcat for JSON.", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error creating demo message", e)
-            Toast.makeText(this, "Error in demo: ${e.message}", Toast.LENGTH_LONG).show()
-        }
+        AdobeLogger.add("App", "Dashboard AEP + AJO iniciado correctamente", "INFO")
     }
 
     override fun onResume() {
         super.onResume()
         MobileCore.lifecycleStart(null)
+        // Refresh Identity info on resume
+        updateDashboardIdentity()
+    }
+
+    private fun updateDashboardIdentity() {
+        AdobeIdentityManager.getECID { ecid ->
+            runOnUiThread {
+                if (ecid.isNotBlank()) {
+                    txtDashboardEcid.text = ecid.take(20) + "..."
+                    badgeCdpStatus.text = "● Conectado"
+                    badgeCdpStatus.setTextColor(android.graphics.Color.parseColor("#1DB954"))
+                }
+            }
+        }
+        
+        // Actualizar UI según si hay un CustomerID seteado
+        val currentId = AdobeIdentityManager.currentCustomerId
+        runOnUiThread {
+            if (currentId.isNotBlank()) {
+                txtDashboardCustomerId.text = "Known: $currentId"
+                txtDashboardCustomerId.setTextColor(android.graphics.Color.parseColor("#1DB954"))
+            } else {
+                txtDashboardCustomerId.text = "Anonymous"
+                txtDashboardCustomerId.setTextColor(android.graphics.Color.parseColor("#FA5A28"))
+            }
+        }
     }
 
     override fun onPause() {
         super.onPause()
         MobileCore.lifecyclePause()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun initializeViews() {
+        cardIdentity = findViewById(R.id.cardIdentity)
+        cardPlaces = findViewById(R.id.cardPlaces)
+        cardPush = findViewById(R.id.cardPush)
+        cardInApp = findViewById(R.id.cardInapp)
+        cardJourney = findViewById(R.id.cardJourney)
+        cardLogs = findViewById(R.id.cardLogs)
+
+        badgeCdpStatus = findViewById(R.id.badgeCdpStatus)
+        txtDashboardEcid = findViewById(R.id.txtDashboardEcid)
+        txtDashboardCustomerId = findViewById(R.id.txtDashboardCustomerId)
+        txtDashboardPushStatus = findViewById(R.id.txtDashboardPushStatus)
+
+        recyclerTimeline = findViewById(R.id.recyclerTimeline)
+    }
+
+    private fun initializeClicks() {
+        cardIdentity.setOnClickListener {
+            startActivity(Intent(this, IdentityActivity::class.java))
+        }
+
+        cardPlaces.setOnClickListener {
+            startActivity(Intent(this, PlacesActivity::class.java))
+        }
+
+        cardLogs.setOnClickListener {
+            startActivity(Intent(this, LogsActivity::class.java))
+        }
+
+        cardInApp.setOnClickListener {
+            AdobeJourneyManager.triggerInApp("demo_event")
+            Toast.makeText(this, "Trigger InApp: 'demo_event' → AJO", Toast.LENGTH_SHORT).show()
+        }
+
+        cardJourney.setOnClickListener {
+            // USAMOS EL IDENTIFICADOR ACTIVO (Customer ID si existe, sino ECID)
+            AdobeIdentityManager.getActiveIdentifier { activeId ->
+                AdobeJourneyManager.sendInteractionEvent(
+                    customerId = activeId,
+                    label = "Journey Manual Trigger desde Dashboard",
+                    group = "DashboardLayout",
+                    category = "BCPDashboard.JourneyTrigger"
+                ) { success ->
+                    runOnUiThread {
+                        val msg = if (success) "✓ Evento enviado como: $activeId" else "✗ Error al enviar a Edge"
+                        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        cardPush.setOnClickListener {
+            val token = AdobePushManager.pushToken.value ?: ""
+            if (token.isNotBlank()) {
+                Toast.makeText(this, "Push Token activo: ${token.take(15)}...", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Obteniendo FCM Token...", Toast.LENGTH_SHORT).show()
+                fetchFcmToken()
+            }
+        }
+
+        // Quick Actions
+        findViewById<android.widget.Button?>(R.id.btnDashboardReset)?.setOnClickListener {
+            AdobeIdentityManager.resetIdentities()
+            updateDashboardIdentity()
+            Toast.makeText(this, "Identidades reseteadas en CDP", Toast.LENGTH_SHORT).show()
+        }
+
+        findViewById<android.widget.Button?>(R.id.btnDashboardSimulate)?.setOnClickListener {
+            startActivity(Intent(this, PlacesActivity::class.java))
+        }
+
+        findViewById<android.widget.Button?>(R.id.btnDashboardInApp)?.setOnClickListener {
+            AdobeJourneyManager.triggerInApp("demo_event")
+            Toast.makeText(this, "Trigger InApp 'demo_event' enviado → AJO", Toast.LENGTH_SHORT).show()
+        }
+
+        findViewById<android.widget.Button?>(R.id.btnDashboardPush)?.setOnClickListener {
+            fetchFcmToken()
+            Toast.makeText(this, "Re-registrando Push Token en Adobe", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun bindDashboard() {
+        DashboardBinder(
+            this,
+            // MiniApp Views (Arriba)
+            findViewById(R.id.txtIdentityStatus),
+            findViewById(R.id.txtPlacesStatus),
+            findViewById(R.id.txtPushStatus),
+            findViewById(R.id.txtJourneyStatus),
+            findViewById(R.id.txtInAppStatus),
+            // Platform State Views (Abajo)
+            findViewById(R.id.txtIdentityState),
+            findViewById(R.id.txtPlacesState),
+            findViewById(R.id.txtPushState),
+            findViewById(R.id.txtJourneyState),
+            findViewById(R.id.txtInAppState)
+        )
+
+        // Observar CustomerID autenticado para refrescar UI
+        DashboardManager.customerAuthenticated.observe(this) { 
+            updateDashboardIdentity()
+        }
+
+        // Observar Push Token
+        AdobePushManager.pushToken.observe(this) { token ->
+            if (token.isNotBlank()) {
+                txtDashboardPushStatus.text = "Registrado ✓"
+                txtDashboardPushStatus.setTextColor(android.graphics.Color.parseColor("#1DB954"))
+            }
+        }
+    }
+
+    private fun loadCdpConnectionData() {
+        badgeCdpStatus.text = "● Conectando..."
+        badgeCdpStatus.setTextColor(android.graphics.Color.parseColor("#FA5A28"))
+        updateDashboardIdentity()
+    }
+
+    private fun setupTimeline() {
+        recyclerTimeline.layoutManager = LinearLayoutManager(this)
+        recyclerTimeline.adapter = timelineAdapter
+
+        AdobeLogger.logsLiveData.observe(this) { logs ->
+            timelineAdapter.updateLogs(logs.take(20))
+        }
+    }
+
+    private fun fetchFcmToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                AdobePushManager.updateToken(token)
+            } else {
+                AdobeLogger.add("Push", "Error al obtener FCM Token: ${task.exception?.message}", "ERROR")
+            }
+        }
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        intent?.extras?.let {
+            if (it.containsKey("messageId")) {
+                Messaging.handleNotificationResponse(intent, true, null)
+                AdobeLogger.add("Push", "Notificación Push clickeada/abierta desde AJO", "SUCCESS")
+            }
+        }
+    }
+
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+
+    private fun askNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this, Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 }

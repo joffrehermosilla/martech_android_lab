@@ -19,9 +19,9 @@
 
         android:paddingBottom="24dp">
 
-        <include layout="@layout/view_home_header"/>
+        <include layout="@layout/dashboard_header"/>
 
-        <include layout="@layout/view_home_miniapps"/>
+        <include layout="@layout/dashboard_miniapps"/>
 
     </LinearLayout>
 
