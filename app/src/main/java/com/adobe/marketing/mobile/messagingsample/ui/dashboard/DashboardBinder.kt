@@ -26,12 +26,20 @@ class DashboardBinder(
     init {
         val successColor = Color.parseColor("#1DB954")
         val warningColor = Color.parseColor("#FA5A28")
+        val errorColor = Color.RED
 
         DashboardManager.sdkConnected.observe(owner) { isConnected ->
             val text = if (isConnected) "SDK Activo" else "No Conectado"
             txtIdentity?.text = text
             txtIdentityState?.text = if (isConnected) "Connected" else "Disconnected"
-            txtIdentityState?.setTextColor(if (isConnected) successColor else Color.RED)
+            txtIdentityState?.setTextColor(if (isConnected) successColor else errorColor)
+        }
+
+        DashboardManager.messagingConnected.observe(owner) { isConnected ->
+            // REACTIVIDAD IN-APP: Ahora depende de un estado real
+            txtInApp?.text = if (isConnected) "Messaging Ready" else "Waiting"
+            txtInAppState?.text = if (isConnected) "Ready" else "Waiting"
+            txtInAppState?.setTextColor(if (isConnected) successColor else warningColor)
         }
 
         DashboardManager.placesConnected.observe(owner) { isConnected ->
@@ -43,11 +51,12 @@ class DashboardBinder(
         DashboardManager.pushConnected.observe(owner) { isConnected ->
             txtPush?.text = if (isConnected) "Token Registrado" else "Sin Token"
             txtPushState?.text = if (isConnected) "Ready" else "Disconnected"
-            txtPushState?.setTextColor(if (isConnected) successColor else Color.RED)
+            txtPushState?.setTextColor(if (isConnected) successColor else errorColor)
         }
 
         DashboardManager.edgeConnected.observe(owner) { isConnected ->
-            txtJourney?.text = if (isConnected) "Edge Conectado" else "Listo"
+            // REACTIVIDAD EDGE: Pasa a verde solo si hay comunicación real
+            txtJourney?.text = if (isConnected) "Edge Online" else "Waiting Hit"
             txtJourneyState?.text = if (isConnected) "Ready" else "Waiting"
             txtJourneyState?.setTextColor(if (isConnected) successColor else warningColor)
         }
@@ -57,12 +66,11 @@ class DashboardBinder(
                 txtIdentity?.text = "Known Customer"
                 txtIdentityState?.text = "Authenticated"
                 txtIdentityState?.setTextColor(successColor)
+            } else {
+                txtIdentity?.text = "Anonymous"
+                txtIdentityState?.text = "Connected"
+                txtIdentityState?.setTextColor(successColor)
             }
         }
-        
-        // InApp Status sync
-        txtInApp?.text = "Ready"
-        txtInAppState?.text = "Ready"
-        txtInAppState?.setTextColor(successColor)
     }
 }

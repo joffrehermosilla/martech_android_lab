@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.adobe.marketing.mobile.MobileCore
 import com.adobe.marketing.mobile.messagingsample.logger.AdobeLogger
+import com.adobe.marketing.mobile.messagingsample.ui.dashboard.DashboardManager
 
 /**
  * Gestiona el registro de tokens de Firebase (FCM) y el procesamiento de notificaciones Push.
@@ -25,6 +26,10 @@ object AdobePushManager {
         
         MobileCore.setPushIdentifier(token)
         _pushToken.postValue(token)
+        
+        // NOTIFICACIÓN AL DASHBOARD
+        DashboardManager.pushConnected.postValue(true)
+
         AdobeLogger.add("Push", "Token FCM registrado: ${token.take(8)}...", "SUCCESS")
     }
 

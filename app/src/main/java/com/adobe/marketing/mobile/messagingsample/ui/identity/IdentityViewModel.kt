@@ -18,7 +18,10 @@ class IdentityViewModel : ViewModel() {
         }
     }
 
-    fun updateCustomerId(customerId: String, namespace: String = "CRM") {
+    /**
+     * Actualiza el Customer ID usando el namespace homologado.
+     */
+    fun updateCustomerId(customerId: String, namespace: String = "CUSTOMER") {
         repository.updateCustomerId(customerId, namespace) {
             val current = _state.value ?: IdentityState()
             _state.postValue(

@@ -7,8 +7,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import com.adobe.marketing.mobile.MobileCore
 import com.adobe.marketing.mobile.messagingsample.R
 import com.adobe.marketing.mobile.messagingsample.adobe.AdobeIdentityManager
+import com.adobe.marketing.mobile.messagingsample.adobe.AdobePushManager
 
 class IdentityActivity : AppCompatActivity() {
 
@@ -16,6 +18,7 @@ class IdentityActivity : AppCompatActivity() {
 
     private lateinit var txtECID: TextView
     private lateinit var txtSDK: TextView
+    private lateinit var txtPush: TextView
     private lateinit var editCustomer: EditText
     private lateinit var btnUpdate: Button
     private lateinit var btnResetIdentity: Button
@@ -29,6 +32,7 @@ class IdentityActivity : AppCompatActivity() {
 
         txtECID = findViewById(R.id.txtECID)
         txtSDK = findViewById(R.id.txtSDK)
+        txtPush = findViewById(R.id.txtPush)
         editCustomer = findViewById(R.id.editCustomerId)
         btnUpdate = findViewById(R.id.btnUpdateCustomerId)
         btnResetIdentity = findViewById(R.id.btnResetIdentity)
@@ -36,6 +40,7 @@ class IdentityActivity : AppCompatActivity() {
         vm.state.observe(this) { state ->
             txtECID.text = state.ecid
             txtSDK.text = state.sdkVersion
+            txtPush.text = if (state.pushToken.isBlank() || state.pushToken == "-") "No registrado" else state.pushToken
         }
 
         btnUpdate.setOnClickListener {
@@ -45,9 +50,10 @@ class IdentityActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            AdobeIdentityManager.setCustomerID(customerId, "CRM") {
+            // ALINEACIÓN TOTAL: Usamos 'cicid' como namespace primario según evidencias del banco
+            AdobeIdentityManager.setCustomerID(customerId, "cicid") {
                 runOnUiThread {
-                    Toast.makeText(this, "CustomerID asociado exitosamente a IdentityMap", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "ID vinculado como 'cicid' en CDP", Toast.LENGTH_SHORT).show()
                     vm.load()
                 }
             }
@@ -59,7 +65,24 @@ class IdentityActivity : AppCompatActivity() {
             vm.load()
         }
 
+        // Observar el token de push en tiempo real
+        AdobePushManager.pushToken.observe(this) { token ->
+            if (!token.isNullOrBlank()) {
+                vm.load() // Recargar estado para ver el token
+            }
+        }
+
         vm.load()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        MobileCore.lifecycleStart(null)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        MobileCore.lifecyclePause()
     }
 
     override fun onSupportNavigateUp(): Boolean {

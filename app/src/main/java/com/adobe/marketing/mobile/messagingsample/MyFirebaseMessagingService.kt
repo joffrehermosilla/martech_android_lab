@@ -6,7 +6,6 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
-import android.util.Log
 import com.adobe.marketing.mobile.messaging.MessagingService
 import com.adobe.marketing.mobile.messagingsample.adobe.AdobePushManager
 import com.google.firebase.messaging.FirebaseMessagingService
@@ -14,7 +13,7 @@ import com.google.firebase.messaging.RemoteMessage
 
 /**
  * Servicio Enterprise para captura de Push AJO.
- * Incluye soporte para canales específicos y sonidos personalizados.
+ * Alineado con los estándares del banco: canal PushBCP001 y sonido sonomarca.
  */
 class MyFirebaseMessagingService : FirebaseMessagingService() {
 
@@ -29,26 +28,34 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val data = message.data
         AdobePushManager.handlePayload(data)
 
-        // Configuración de canal con sonido si es necesario
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = data["adb_channel_id"] ?: "ajo_default_channel"
+            // ALINEACIÓN: Usamos el canal PushBCP001 por defecto si no viene en el payload
+            val channelId = data["adb_channel_id"] ?: "PushBCP001"
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             
             if (notificationManager.getNotificationChannel(channelId) == null) {
                 val channel = NotificationChannel(
                     channelId,
-                    "Mensajes Corporativos",
+                    "Notificaciones BCP",
                     NotificationManager.IMPORTANCE_HIGH
                 ).apply {
-                    description = "Canal para notificaciones AJO con sonido"
+                    description = "Canal corporativo para campañas AJO"
                     enableLights(true)
-                    // Aquí se podría setear un sonido específico desde raw si viene en el payload
+                    enableVibration(true)
+                    
+                    // Configuración de sonido: sonomarca
+                    val soundUri = Uri.parse("android.resource://" + packageName + "/raw/sonomarca")
+                    val audioAttributes = AudioAttributes.Builder()
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                        .build()
+                    setSound(soundUri, audioAttributes)
                 }
                 notificationManager.createNotificationChannel(channel)
             }
         }
 
-        // Delegar al SDK de Adobe para mostrar la notificación
+        // Delegar al SDK de Adobe para el tracking de entrega y visualización
         MessagingService.handleRemoteMessage(this, message)
     }
 }

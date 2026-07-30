@@ -6,14 +6,14 @@ import com.adobe.marketing.mobile.edge.identity.Identity
 import com.adobe.marketing.mobile.edge.identity.IdentityItem
 import com.adobe.marketing.mobile.edge.identity.IdentityMap
 import com.adobe.marketing.mobile.messagingsample.logger.AdobeLogger
+import com.adobe.marketing.mobile.messagingsample.ui.dashboard.DashboardManager
 
 /**
  * Gestiona la identidad del usuario en Adobe Experience Platform.
- * Soporta Identity Stitching para Real-Time CDP.
+ * Alineado con el namespace técnico 'cicid' del banco.
  */
 object AdobeIdentityManager {
 
-    // Almacenamos el CustomerID actual en memoria para que todos los eventos lo usen automáticamente
     var currentCustomerId: String = ""
         private set
 
@@ -26,32 +26,34 @@ object AdobeIdentityManager {
     }
 
     /**
-     * Establece el CustomerID (DNI, Email, CRMID) y lo persiste para eventos futuros.
+     * Establece el CustomerID usando el namespace 'cicid' (homologado en CDP).
      */
     fun setCustomerID(
         customerId: String,
-        namespace: String = "CRM",
+        namespace: String = "cicid", // ALINEACIÓN: Namespace cambiado a 'cicid'
         onComplete: (() -> Unit)? = null
     ) {
-        if (customerId.isBlank()) {
-            AdobeLogger.add("Identity", "CustomerID vacío", "WARN")
-            return
-        }
+        if (customerId.isBlank()) return
 
         currentCustomerId = customerId
+        
+        // Limpiamos namespaces genéricos previos para evitar ruidos
+        Identity.removeIdentity(IdentityItem(customerId), "CRM")
+        Identity.removeIdentity(IdentityItem(customerId), "CUSTOMER")
+
+        // Registro con cicid (Primary Identity en CDP)
         val item = IdentityItem(customerId, AuthenticatedState.AUTHENTICATED, true)
         val identityMap = IdentityMap()
         identityMap.addItem(item, namespace)
 
         Identity.updateIdentities(identityMap)
-        AdobeLogger.add("Identity", "CustomerID vinculado: $customerId [$namespace]", "SUCCESS")
+        
+        DashboardManager.customerAuthenticated.postValue(true)
+        
+        AdobeLogger.add("Identity", "Identidad vinculada en CDP como '$namespace': $customerId", "SUCCESS")
         onComplete?.invoke()
     }
 
-    /**
-     * Retorna el ID actual o el ECID si no hay un CustomerID seteado.
-     * Esto asegura que el esquema _bcp siempre tenga un identificador.
-     */
     fun getActiveIdentifier(callback: (String) -> Unit) {
         if (currentCustomerId.isNotBlank()) {
             callback(currentCustomerId)
@@ -63,6 +65,7 @@ object AdobeIdentityManager {
     fun resetIdentities() {
         currentCustomerId = ""
         MobileCore.resetIdentities()
+        DashboardManager.customerAuthenticated.postValue(false)
         AdobeLogger.add("Identity", "SDK Reset: Identidades limpiadas", "WARN")
     }
 }

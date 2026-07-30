@@ -11,6 +11,7 @@ import com.adobe.marketing.mobile.Places
 import com.adobe.marketing.mobile.edge.identity.Identity
 import com.adobe.marketing.mobile.messagingsample.BuildConfig
 import com.adobe.marketing.mobile.messagingsample.logger.AdobeLogger
+import com.adobe.marketing.mobile.messagingsample.ui.dashboard.DashboardManager
 
 /**
  * Orquestador central del Adobe Experience Platform SDK.
@@ -37,6 +38,11 @@ object AdobeSDKManager {
 
         MobileCore.registerExtensions(extensions) {
             isInitialized = true
+            
+            // Actualizamos el estado global del Dashboard
+            DashboardManager.sdkConnected.postValue(true)
+            DashboardManager.edgeConnected.postValue(true)
+            
             AdobeLogger.add("SDK", "Adobe SDK Initialized with ${extensions.size} extensions", "SUCCESS")
             
             // Configuración desde .env.local via BuildConfig
@@ -49,6 +55,7 @@ object AdobeSDKManager {
             // Assurance Session para debugging en tiempo real
             if (BuildConfig.ADOBE_ASSURANCE_SESSION_ID.isNotBlank()) {
                 Assurance.startSession(BuildConfig.ADOBE_ASSURANCE_SESSION_ID)
+                DashboardManager.assuranceConnected.postValue(true)
             }
         }
     }

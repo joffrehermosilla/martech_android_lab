@@ -7,22 +7,21 @@ import java.util.TimeZone
 
 /**
  * Representa el esquema XDM corporativo _bcp para Adobe Experience Platform.
- * Homologado para Real-Time CDP y Adobe Journey Optimizer.
+ * Alineado con el esquema corporativo del banco.
  */
 object XdmBcpSchema {
 
     fun createMobileInteractionXdm(
         customerId: String,
         eventName: String = "mobile.action.interaction",
-        group: String = "ProductListLayout",
-        category: String = "BCPProductList.Loans",
+        group: String = "LocationServices",
+        category: String = "AdobePlaces.POI",
         actionName: String = "Tap",
-        label: String = "Descubrir más préstamos",
+        label: String = "POI Entry",
         element: String = "Button",
-        component: String = "loanButton"
+        component: String = "POI_ID"
     ): Map<String, Any> {
         
-        // _bcp.mobile.action
         val actionMap = mapOf(
             "group" to group,
             "category" to category,
@@ -32,30 +31,26 @@ object XdmBcpSchema {
             "component" to component
         )
 
-        // _bcp.mobile
         val mobileMap = mapOf(
             "action" to actionMap
-            // "screen" y "error" pueden añadirse aquí según necesidad
         )
 
-        // _bcp.identity
         val identityMap = mapOf(
             "customerId" to customerId
         )
 
-        // _bcp.event
         val eventMap = mapOf(
             "name" to eventName
         )
 
-        // Objeto Raíz _bcp
+        // El objeto raíz _bcp solo debe contener XDM.
+        // El Mapper del banco busca la data fuera de aquí.
         val bcpMap = mapOf(
             "identity" to identityMap,
             "event" to eventMap,
             "mobile" to mobileMap
         )
 
-        // XDM Wrapper
         return mapOf(
             "_bcp" to bcpMap,
             "eventType" to eventName,

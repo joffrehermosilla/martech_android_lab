@@ -14,7 +14,7 @@ object DashboardManager {
     val placesConnected = MutableLiveData(false)
     val pushConnected = MutableLiveData(false)
     val customerAuthenticated = MutableLiveData(false)
-    val identityLoaded = MutableLiveData(false)
+    val messagingConnected = MutableLiveData(false) // Nuevo: Para In-App
 
     val lastMessage = MutableLiveData("Sistema Operativo Listo")
 

@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.adobe.marketing.mobile.MobileCore
 import com.adobe.marketing.mobile.messagingsample.R
 import com.adobe.marketing.mobile.messagingsample.adobe.AdobeIdentityManager
 import com.adobe.marketing.mobile.messagingsample.adobe.AdobePlacesManager
@@ -58,6 +59,16 @@ class PlacesActivity : AppCompatActivity() {
                 Toast.makeText(this, "Coordenadas inválidas", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        MobileCore.lifecycleStart(null)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        MobileCore.lifecyclePause()
     }
 
     private fun initializeViews() {
@@ -139,8 +150,6 @@ class PlacesActivity : AppCompatActivity() {
 
     private fun simulatePoiEntry(poiItem: PlaceItem) {
         AdobeIdentityManager.getActiveIdentifier { activeId ->
-            // CORRECCIÓN: Usamos un constructor anónimo que hereda de PlacesPOI 
-            // asegurando tipos correctos para radio (Int), peso (Int) y metadata (Map)
             val dummyPoi = object : PlacesPOI(
                 poiItem.identifier, 
                 poiItem.name, 

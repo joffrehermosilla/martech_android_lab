@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.adobe.marketing.mobile.MobileCore
 import com.adobe.marketing.mobile.messagingsample.R
 import com.adobe.marketing.mobile.messagingsample.logger.AdobeLogger
 
@@ -30,7 +31,14 @@ class LogsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // RASTREO DE CICLO DE VIDA
+        MobileCore.lifecycleStart(null)
         adapter.updateLogs(AdobeLogger.getLogs())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        MobileCore.lifecyclePause()
     }
 
     override fun onSupportNavigateUp(): Boolean {
