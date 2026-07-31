@@ -9,7 +9,7 @@ Manual de Ingeniería para la validación y auditoría del ecosistema **AEP + Re
 Para que el **Identity Stitching** funcione, el código debe coincidir exactamente con el "Identity Symbol" configurado en Adobe Platform.
 
 - **ECID (Dispositivo):** Generado automáticamente por el SDK.
-- **CustomerID (Persona):** Valor `joffre123456789`.
+- **CustomerID (Persona):** Valor `jo89`.
 - **Namespace Técnico:** Se ha detectado que el símbolo correcto en este proyecto es `CRMID`.
   - *Nota:* Si se usa un namespace inexistente en Adobe (como "CRM"), CDP no podrá procesar el perfil.
 
@@ -29,8 +29,8 @@ Si al buscar el perfil de Joffre no ves eventos, verifica estos 3 puntos:
 
 Para realizar pruebas de envío desde AJO:
 
-- **Token de Prueba:** `dlSRXzuiSKC97bZd1l8J1s:APA91bFtFxuAUeEVlEbXwdh2C3zRprIiUSaZkjssnApak5ar4U3E1iwhM9Dib9Zjz_FVsahBGBl5dMfc0wre03C2bvndD0EAC_WRL0x8mtdPgtAe1c-IQac`
-- **App ID:** `com.adobe.marketing.mobile.messagingsample`
+- **Token de Prueba:** `dlSZkjssbvndD0EAC_WRL0x8mtdPgtAe1c-IQac`
+- **App ID:** `com.adobeingsample`
 - **Channel ID:** `bcp_push_channel`
 - **Audio:** `sonomarca` (Archivo `res/raw/sonomarca.mp3`).
 
@@ -41,8 +41,8 @@ Para realizar pruebas de envío desde AJO:
 ```json
 {
   "_bcp": {
-    "identity": { "customerId": "joffre123456789" },
-    "event": { "name": "mobile.action.interaction" },
+    "identity": { "customerId": "jof89" },
+    "event": { "name": "moion" },
     "mobile": {
       "action": {
         "group": "LocationServices",
