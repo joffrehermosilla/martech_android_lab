@@ -1,0 +1,22 @@
+// Este es el archivo de compilación de la raíz del proyecto.
+// Su principal responsabilidad es definir las versiones de los plugins
+// que usarán todos los módulos del proyecto.
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Aquí definimos la versión del Android Gradle Plugin (AGP).
+        // Mantener esto actualizado es clave.
+      //  classpath("com.android.tools.build:gradle:9.1.1")
+      // esta version es la que debe funcionar en prod gradle:8.12.3
+        classpath("com.android.tools.build:gradle:8.12.3")
+        // El plugin de Kotlin para Android.
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.10")
+
+        // Google Services plugin
+        classpath("com.google.gms:google-services:4.4.1")
+    }
+}

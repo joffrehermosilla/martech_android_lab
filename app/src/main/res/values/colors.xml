@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- BCP Corporate Palette -->
+    <color name="bcp_blue">#002A8D</color>
+    <color name="bcp_blue_dark">#001C5A</color>
+    <color name="bcp_orange">#FF6B00</color>
+    <color name="bcp_orange_light">#FF8533</color>
+
+    <color name="primary">@color/bcp_blue</color>
+    <color name="primaryDark">@color/bcp_blue_dark</color>
+    <color name="secondary">@color/bcp_orange</color>
+
+    <color name="background">#F0F4FF</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="textPrimary">#0F172A</color>
+    <color name="textSecondary">#64748B</color>
+
+    <color name="success">#1DB954</color>
+    <color name="warning">#FA5A28</color>
+    <color name="error">#FF3B30</color>
+</resources>

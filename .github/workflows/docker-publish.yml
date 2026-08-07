@@ -1,0 +1,43 @@
+name: Build and Push to Docker Hub
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create .env.local for Build
+        # Generamos el archivo .env.local a partir de los secretos de GitHub.
+        # Esto permite que la compilación de Gradle dentro de Docker funcione.
+        run: |
+          printf "GOOGLE_SERVICES_JSON_CONTENT=%s\nADOBE_APP_ID=%s\nADOBE_ASSURANCE_SESSION_ID=%s\n" \
+          "${{ secrets.GOOGLE_SERVICES_JSON_CONTENT }}" \
+          "${{ secrets.ADOBE_APP_ID }}" \
+          "${{ secrets.ADOBE_ASSURANCE_SESSION_ID }}" > .env.local
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.DOCKER_USERNAME }}/ajo-android-template
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          # La imagen usará el .env.local creado en el paso anterior
+          tags: ${{ steps.meta.outputs.tags }}, ${{ secrets.DOCKER_USERNAME }}/ajo-android-template:latest
+          labels: ${{ steps.meta.outputs.labels }}

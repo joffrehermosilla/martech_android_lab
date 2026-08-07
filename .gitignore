@@ -1,0 +1,30 @@
+
+
+# Archivos y carpetas generados por el IDE y el sistema de compilación
+*.iml
+*.hprof
+*.pyc
+.gradle
+.idea/
+build/
+/captures
+.externalNativeBuild
+.cxx
+.DS_Store
+/code/referencias
+
+# Local environment / machine configuration
+.env.local
+local.properties
+
+# Firebase local configuration
+google-services.json
+**/google-services.json
+
+# Secrets / local configuration
+*.keystore
+*.jks
+# Local/test configuration artifacts
+code/testapp/firebase-google-services.json
+code/testapp/google-services.json.txt
+code/testapp/aepsdk-messaging-android.zip
